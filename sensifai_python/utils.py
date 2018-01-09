@@ -30,25 +30,3 @@ def encode_multipart_data(file):
     content_length = str(len(body))
 
     return body, content_type, content_length
-
-
-def encode_multipart_formdata(files):
-    """
-    files is a sequence of (filename, value) elements for data to be uploaded as files
-    Return (content_type, body) ready for http.client.HTTP instance
-    """
-    BOUNDARY = random_string(30)
-    CRLF = '\r\n'
-    L = []
-    for (filename, value) in files:
-        L.append('--' + BOUNDARY)
-        L.append('Content-Disposition: form-data; name="file"; filename="%s"' % filename)
-        L.append('Content-Type: %s' % get_content_type(filename))
-        L.append('')
-        L.append(value.decode('ISO-8859-1'))
-    L.append('--' + BOUNDARY + '--')
-    L.append('')
-    body = CRLF.join(L)
-    content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
-    return content_type, body
-

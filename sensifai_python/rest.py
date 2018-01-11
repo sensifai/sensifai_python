@@ -1,12 +1,8 @@
 import os
 import json
 from http.client import HTTPSConnection
-from urllib.request import (
-    Request,
-    urlopen,
-)
 
-from utils import (
+from .utils import (
     encode_multipart_data,
 )
 
@@ -15,15 +11,29 @@ class ApiError(Exception):
     pass
 
 
+class RestError(Exception):
+    pass
+
+
 class SensifaiApi(object):
     def __init__(self, token=None, host=None):
+        """
+        Initialize SensifaiApi
+
+        Parameters
+        ----------
+        token : string
+            to get your key visit https://developer.sensifai.com
+        host : string, optional
+            
+        """
         if token:
             self.token = token
         else:
             self.token = os.environ.get("SENSIFAI_API_TOKEN", None)
 
         if not self.token:
-            raise ApiError("Please provide token")
+            raise ApiError("Token is Required")
 
         if host:
             self.host = host
@@ -37,22 +47,33 @@ class SensifaiApi(object):
 
 
     def video_by_file(self, file):
+        if not isinstance(file, str):
+            raise ApiError("file should be str")
+
         body, content_type, content_length = encode_multipart_data(file)
         conn = HTTPSConnection(self.host)
 
-        headers = {}
+        headers = self._set_boilerplate_headers(**{
+            'Content-Type': content_type,
+            'Content-Length': content_length
+        })
 
-        headers['Content-Type'] = content_type
-        headers['Content-Length'] = content_length
-        headers['Authorization'] = 'Bearer %s' % self.token
-        headers['User-Agent'] = self._user_agent
-
+        print(headers)
         url = '/api/models/media_video_by_file'
         conn.request('POST', url, body, headers)
-        res = conn.getresponse()
 
-        res = res.read()
-        return json.loads(res.decode('ascii'))['media_id']
+        try:
+            res = conn.getresponse()
+            if (res.status == 200):
+                res = res.read()
+                media_id = json.loads(res.decode('ascii'))['media_id']
+                print("file uploaded successfully. media_id: %s" % media_id)
+                return media_id
+            else:
+                raise RestError("status code: ", res.status)
+        except Exception as e:
+            print(e)
+            raise RestError("Problem in uploading video....")
 
 
 
@@ -66,36 +87,51 @@ class SensifaiApi(object):
         body = {'video_url': video_url}
         body = json.dumps(body).encode('ascii')
 
-        headers = {}
-
-        headers['Content-Type'] = 'application/json'
-        headers['Authorization'] = 'Bearer %s' % self.token
-        headers['User-Agent'] = self._user_agent
+        headers = self._set_boilerplate_headers(**{'Content-Type': 'application/json'})
 
         conn.request('POST', url, body, headers)
-        res = conn.getresponse()
 
-        res = res.read()
-        return json.loads(res.decode('ascii'))['media_id']
+        try:
+            res = conn.getresponse()
+            if (res.status == 200):
+                res = res.read()
+                media_id = json.loads(res.decode('ascii'))['media_id']
+                print("file uploaded successfully. media_id: %s" % media_id)
+                return media_id
+            else:
+                raise RestError("status code: ", res.status)
+        except Exception as e:
+            print(e)
+            raise RestError("Problem in uploading video....")
 
 
     def image_by_file(self, file):
+        if not isinstance(file, str):
+            raise ApiError("file should be str")
+
         body, content_type, content_length = encode_multipart_data(file)
         conn = HTTPSConnection(self.host)
 
-        headers = {}
-
-        headers['Content-Type'] = content_type
-        headers['Content-Length'] = content_length
-        headers['Authorization'] = 'Bearer %s' % self.token
-        headers['User-Agent'] = self._user_agent
+        headers = self._set_boilerplate_headers(**{
+            'Content-Type': content_type,
+            'Content-Length': content_length
+        })
 
         url = '/api/models/media_image_by_file'
         conn.request('POST', url, body, headers)
-        res = conn.getresponse()
 
-        res = res.read()
-        return json.loads(res.decode('ascii'))['media_id']
+        try:
+            res = conn.getresponse()
+            if (res.status == 200):
+                res = res.read()
+                media_id = json.loads(res.decode('ascii'))['media_id']
+                print("file uploaded successfully. media_id: %s" % media_id)
+                return media_id
+            else:
+                raise RestError("status code: ", res.status)
+        except Exception as e:
+            print(e)
+            raise RestError("Problem in uploading image....")
 
 
     def image_by_url(self, image_url):
@@ -108,22 +144,27 @@ class SensifaiApi(object):
         body = {'image_url': image_url}
         body = json.dumps(body).encode('ascii')
         
-        headers = {}
-
-        headers['Content-Type'] = 'application/json'
-        headers['Authorization'] = 'Bearer %s' % self.token
-        headers['User-Agent'] = self._user_agent
+        headers = self._set_boilerplate_headers(**{'Content-Type': 'application/json'})
 
         conn.request('POST', url, body, headers)
-        res = conn.getresponse()
 
-        res = res.read()
-        return json.loads(res.decode('ascii'))['media_id']
+        try:
+            res = conn.getresponse()
+            if (res.status == 200):
+                res = res.read()
+                media_id = json.loads(res.decode('ascii'))['media_id']
+                print("file uploaded successfully. media_id: %s" % media_id)
+                return media_id
+            else:
+                raise RestError("status code: ", res.status)
+        except Exception as e:
+            print(e)
+            raise RestError("Problem in uploading image....")
 
 
     def predict_image(self, media_id, models):
-        if not isinstance(media_id, str):
-            raise ApiError("media_id should be string")
+        if not isinstance(media_id, str) or media_id == "":
+            raise ApiError("media_id should be valid string")
 
         if not isinstance(models, list):
             raise ApiError("models should be list")
@@ -134,21 +175,20 @@ class SensifaiApi(object):
         body = {'media_id': media_id, 'models': models}
         body = json.dumps(body).encode('ascii')
 
-        headers = {}
-
-        headers['Content-Type'] = 'application/json'
-        headers['Authorization'] = 'Bearer %s' % self.token
-        headers['User-Agent'] = self._user_agent
+        headers = self._set_boilerplate_headers(**{'Content-Type': 'application/json'})
 
         conn.request('POST', url, body, headers)
-        res = conn.getresponse()
+        try:
+            res = conn.getresponse()
+            res = res.read()
+            return json.loads(res.decode('utf-8'))
+        except Exception as e:
+            raise RestError("RestError", e)
 
-        res = res.read()
-        return json.loads(res.decode('ascii'))
 
     def predict_video(self, media_id, models):
-        if not isinstance(media_id, str):
-            raise ApiError("media_id should be string")
+        if not isinstance(media_id, str) or media_id == "":
+            raise ValueError("media_id should be valid string")
 
         if not isinstance(models, list):
             raise ApiError("models should be list")
@@ -159,15 +199,75 @@ class SensifaiApi(object):
         body = {'media_id': media_id, 'models': models}
         body = json.dumps(body).encode('ascii')
 
-        headers = {}
-
-        headers['Content-Type'] = 'application/json'
-        headers['Authorization'] = 'Bearer %s' % self.token
-        headers['User-Agent'] = self._user_agent
+        headers = self._set_boilerplate_headers(**{'Content-Type': 'application/json'})
 
         conn.request('POST', url, body, headers)
-        res = conn.getresponse()
+        try:
+            res = conn.getresponse()
+            res = res.read()
+            return json.loads(res.decode('utf-8'))
+        except Exception as e:
+            raise RestError("RestError", e)
 
-        res = res.read()
-        return json.loads(res.decode('ascii'))
+
+    def start_video_model(self, models, **kwargs):
+        if not kwargs:
+            raise ValueError('url or file must be provided as keyword arguments')
+        if 'url' in kwargs and 'file' in kwargs:
+            raise ValueError('either url or file should be provided as keyword arguments, not both')
+
+        media_id = ""
+        if 'url' in kwargs:
+            media_id = self.video_by_url(kwargs['url'])
+        elif 'file' in kwargs:
+            media_id = self.video_by_file(kwargs['file'])
+        return self.predict_video(media_id, models)
+
+
+    def start_image_model(self, models, **kwargs):
+        if not kwargs:
+            raise ValueError('url or file must be provided as keyword arguments')
+        if 'url' in kwargs and 'file' in kwargs:
+            raise ValueError('either url or file should be provided as keyword arguments, not both')
+
+        media_id = ""
+        if 'url' in kwargs:
+            media_id = self.image_by_url(kwargs['url'])
+        elif 'file' in kwargs:
+            media_id = self.image_by_file(kwargs['file'])
+        return self.predict_video(media_id, models)
+
+
+    def get_video_results(self, task_id):
+        url = '/api/models/get_video_results'
+        conn = HTTPSConnection(self.host)
+        
+        body = {'task_id': task_id}
+        body = json.dumps(body).encode('ascii')
+
+        headers = self._set_boilerplate_headers(**{'Content-Type': 'application/json'})
+
+        conn.request('POST', url, body, headers)
+
+        try:
+            res = conn.getresponse()
+            if (res.status == 200):
+                res = res.read()
+                return json.loads(res.decode('ascii'))
+            if (res.status == 102):
+                print("Still in progress")
+                return
+        except Exception as e:
+            raise RestError("Rest Error", e)
+
+
+    def _set_boilerplate_headers(self, **kwargs):
+        headers = {}
+        headers['Authorization'] = 'Bearer %s' % self.token
+        headers['User-Agent'] = self._user_agent
+        if kwargs:
+            for (k,v) in kwargs.items():
+                headers[k] = v
+        return headers
+
 

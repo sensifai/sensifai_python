@@ -1,10 +1,28 @@
+# -*- coding: utf-8 -*-
+
+"""
+Sensifai Python Client
+"""
+
 import os
 import json
+import logging
 from http.client import HTTPSConnection
 
 from .utils import (
     encode_multipart_data,
 )
+
+logger = logging.getLogger('sensifai')
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+logger.handlers = []
+ch = logging.StreamHandler()
+ch.setFormatter(formatter)
+
+logger.addHandler(ch)
+logger.setLevel(logging.DEBUG)
+
 
 
 class ApiError(Exception):
@@ -58,21 +76,22 @@ class SensifaiApi(object):
             'Content-Length': content_length
         })
 
-        print(headers)
         url = '/api/models/media_video_by_file'
         conn.request('POST', url, body, headers)
 
         try:
             res = conn.getresponse()
+            logger.debug('http status: %d' % res.status)
             if (res.status == 200):
                 res = res.read()
                 media_id = json.loads(res.decode('ascii'))['media_id']
-                print("file uploaded successfully. media_id: %s" % media_id)
+                logger.debug("file uploaded successfully. media_id: %s" % media_id)
                 return media_id
             else:
+                logger.debug(res.read())
                 raise RestError("status code: ", res.status)
         except Exception as e:
-            print(e)
+            logger.debug(e)
             raise RestError("Problem in uploading video....")
 
 
@@ -93,15 +112,17 @@ class SensifaiApi(object):
 
         try:
             res = conn.getresponse()
+            logger.debug('http status: %d' % res.status)
             if (res.status == 200):
                 res = res.read()
                 media_id = json.loads(res.decode('ascii'))['media_id']
-                print("file uploaded successfully. media_id: %s" % media_id)
+                logger.debug("file uploaded successfully. media_id: %s" % media_id)
                 return media_id
             else:
-                raise RestError("status code: ", res.status)
+                logger.debug(res.read())
+                raise RestError("http status: %d" % res.status)
         except Exception as e:
-            print(e)
+            logger.debug(e)
             raise RestError("Problem in uploading video....")
 
 
@@ -122,15 +143,17 @@ class SensifaiApi(object):
 
         try:
             res = conn.getresponse()
+            logger.debug('http status: %d' % res.status)
             if (res.status == 200):
                 res = res.read()
                 media_id = json.loads(res.decode('ascii'))['media_id']
-                print("file uploaded successfully. media_id: %s" % media_id)
+                logger.debug("file uploaded successfully. media_id: %s" % media_id)
                 return media_id
             else:
+                logger.debug(res.read())
                 raise RestError("status code: ", res.status)
         except Exception as e:
-            print(e)
+            logger.debug(e)
             raise RestError("Problem in uploading image....")
 
 
@@ -150,15 +173,16 @@ class SensifaiApi(object):
 
         try:
             res = conn.getresponse()
+            logger.debug('http status: %d' % res.status)
             if (res.status == 200):
                 res = res.read()
                 media_id = json.loads(res.decode('ascii'))['media_id']
-                print("file uploaded successfully. media_id: %s" % media_id)
+                logger.debug("file uploaded successfully. media_id: %s" % media_id)
                 return media_id
             else:
                 raise RestError("status code: ", res.status)
         except Exception as e:
-            print(e)
+            logger.debug(e)
             raise RestError("Problem in uploading image....")
 
 
@@ -180,8 +204,9 @@ class SensifaiApi(object):
         conn.request('POST', url, body, headers)
         try:
             res = conn.getresponse()
+            logger.debug('http status: %d' % res.status)
             res = res.read()
-            return json.loads(res.decode('utf-8'))
+            return json.loads(res.decode('ISO-8859-1'))
         except Exception as e:
             raise RestError("RestError", e)
 
@@ -204,10 +229,17 @@ class SensifaiApi(object):
         conn.request('POST', url, body, headers)
         try:
             res = conn.getresponse()
-            res = res.read()
-            return json.loads(res.decode('utf-8'))
+            resp = res.read().decode('ISO-8859-1')
+            logger.debug('http status: %d' % res.status)
+            logger.debug('http response: %s' % resp)
+            if (res.status == 200):
+                return resp
+            if (res.status == 102):
+                logger.debug("Converting file")
+                return resp
         except Exception as e:
-            raise RestError("RestError", e)
+            raise RestError("Rest Error", e)
+
 
 
     def start_video_model(self, models, **kwargs):
@@ -251,11 +283,12 @@ class SensifaiApi(object):
 
         try:
             res = conn.getresponse()
+            logger.debug('http status: %d' % res.status)
             if (res.status == 200):
                 res = res.read()
-                return json.loads(res.decode('ascii'))
+                return json.loads(res.decode('ISO-8859-1'))
             if (res.status == 102):
-                print("Still in progress")
+                logger.debug("Still in progress")
                 return
         except Exception as e:
             raise RestError("Rest Error", e)

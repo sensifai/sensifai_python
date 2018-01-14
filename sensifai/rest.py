@@ -233,10 +233,10 @@ class SensifaiApi(object):
             logger.debug('http status: %d' % res.status)
             logger.debug('http response: %s' % resp)
             if (res.status == 200):
-                return resp
+                return json.loads(resp)
             if (res.status == 102):
                 logger.debug("Converting file")
-                return resp
+                return json.loads(resp)
         except Exception as e:
             raise RestError("Rest Error", e)
 

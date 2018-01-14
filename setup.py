@@ -14,12 +14,11 @@ setup(
     author_email='api@sensifai.com',
 
     classifiers=[
-    'Development Status :: 4 - Beta',
-    'Intended Audience :: Developers',
-    'Topic :: Software Development :: Build Tools',
-    'Topic :: Multimedia :: Video'
-    'License :: OSI Approved :: Apache Software License',
-    'Programming Language :: Python :: 3+',
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Build Tools',
+        'Topic :: Multimedia :: Video',
+        'License :: OSI Approved :: Apache Software License'
     ],
     keywords='Sensofai; Video Recognition; ',
     python_requires='>=3',

@@ -14,7 +14,7 @@ from .utils import (
 )
 
 logger = logging.getLogger('sensifai')
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter('%(levelname)s - %(message)s')
 
 logger.handlers = []
 ch = logging.StreamHandler()
@@ -288,7 +288,7 @@ class SensifaiApi(object):
             if (res.status == 200):
                 return json.loads(resp)
             if (res.status == 102):
-                logger.debug("http response: %s" % resp)
+                logger.debug("http response: %s" % 'Still in progress')
                 return
         except Exception as e:
             raise RestError("Rest Error", e)

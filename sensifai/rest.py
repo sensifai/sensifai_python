@@ -267,7 +267,7 @@ class SensifaiApi(object):
             media_id = self.image_by_url(kwargs['url'])
         elif 'file' in kwargs:
             media_id = self.image_by_file(kwargs['file'])
-        return self.predict_video(media_id, models)
+        return self.predict_image(media_id, models)
 
 
     def get_video_results(self, task_id):
@@ -283,12 +283,12 @@ class SensifaiApi(object):
 
         try:
             res = conn.getresponse()
+            resp = res.read().decode('ISO-8859-1')
             logger.debug('http status: %d' % res.status)
             if (res.status == 200):
-                res = res.read()
-                return json.loads(res.decode('ISO-8859-1'))
+                return json.loads(resp)
             if (res.status == 102):
-                logger.debug("Still in progress")
+                logger.debug("http response: %s" % resp)
                 return
         except Exception as e:
             raise RestError("Rest Error", e)

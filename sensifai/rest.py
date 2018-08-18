@@ -43,7 +43,7 @@ class SensifaiApi(object):
         token : string
             to get your key visit https://developer.sensifai.com
         host : string, optional
-            
+
         """
         if token:
             self.token = token
@@ -76,7 +76,7 @@ class SensifaiApi(object):
             'Content-Length': content_length
         })
 
-        url = '/api/models/media_video_by_file'
+        url = '/v1/upload_video'
         conn.request('POST', url, body, headers)
 
         try:
@@ -100,9 +100,9 @@ class SensifaiApi(object):
         if not isinstance(video_url, str):
             raise ApiError("video_url should be str")
 
-        url = '/api/models/media_video_by_url'
+        url = '/v1/upload_video_url'
         conn = HTTPSConnection(self.host)
-        
+
         body = {'video_url': video_url}
         body = json.dumps(body).encode('ascii')
 
@@ -138,7 +138,7 @@ class SensifaiApi(object):
             'Content-Length': content_length
         })
 
-        url = '/api/models/media_image_by_file'
+        url = '/v1/upload_image'
         conn.request('POST', url, body, headers)
 
         try:
@@ -161,12 +161,12 @@ class SensifaiApi(object):
         if not isinstance(image_url, str):
             raise ApiError("image_url should be str")
 
-        url = '/api/models/media_image_by_url'
+        url = '/v1/upload_image_url'
         conn = HTTPSConnection(self.host)
 
         body = {'image_url': image_url}
         body = json.dumps(body).encode('ascii')
-        
+
         headers = self._set_boilerplate_headers(**{'Content-Type': 'application/json'})
 
         conn.request('POST', url, body, headers)

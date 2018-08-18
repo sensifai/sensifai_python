@@ -262,18 +262,19 @@ class SensifaiApi(object):
         if 'url' in kwargs and 'file' in kwargs:
             raise ValueError('either url or file should be provided as keyword arguments, not both')
 
-        media_id = ""
+        result = ""
         if 'url' in kwargs:
-            media_id = self.image_by_url(kwargs['url'])
+            result = self.image_by_url(kwargs['url'])
         elif 'file' in kwargs:
-            media_id = self.image_by_file(kwargs['file'])
-        return self.predict_image(media_id, models)
+            result = self.image_by_file(kwargs['file'])
+        return result
+        # return self.predict_image(media_id, models)
 
 
     def get_video_results(self, task_id):
         url = '/api/models/get_video_results'
         conn = HTTPSConnection(self.host)
-        
+
         body = {'task_id': task_id}
         body = json.dumps(body).encode('ascii')
 
@@ -302,5 +303,3 @@ class SensifaiApi(object):
             for (k,v) in kwargs.items():
                 headers[k] = v
         return headers
-
-

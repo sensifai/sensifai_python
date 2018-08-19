@@ -77,7 +77,7 @@ class SensifaiApi(object):
                                     headers = headers
                                 )
             logger.debug('HTTP Status Code: %d' % conn.status_code)
-            if (conn.status_code == 200):
+            if (conn.status_code == 202):
                 media_id = json.loads(conn.text)['task_id']
                 logger.debug("File uploaded successfully.\nmedia_id: %s" % media_id)
                 return media_id
@@ -108,7 +108,7 @@ class SensifaiApi(object):
                                     headers = headers
                                 )
             logger.debug('HTTP Status Code: %d' % conn.status_code)
-            if (conn.status_code == 200):
+            if (conn.status_code == 202):
                 media_id = json.loads(conn.text)['task_id']
                 logger.debug("File uploaded successfully.\nmedia_id: %s" % media_id)
                 return media_id

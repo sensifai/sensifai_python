@@ -57,7 +57,7 @@ class SensifaiApi(object):
             self.host = os.environ.get("SENSIFAI_API_BASE", None)
 
         if not self.host:
-            self.host = 'api.sensifai.com'
+            self.host = 'https://api.sensifai.com'
 
         self._user_agent = 'Sensifai Python Client'
 
@@ -124,27 +124,27 @@ class SensifaiApi(object):
         if not isinstance(file, str):
             raise ApiError("File should be a path on your system")
 
-        body, content_type, content_length = encode_multipart_data(file)
-        conn = HTTPSConnection(self.host)
-
-        headers = self._set_boilerplate_headers(**{
-            'Content-Type': content_type,
-            'Content-Length': content_length
-        })
-
-        url = '/v1/upload_image'
-        conn.request('POST', url, body, headers)
-
+        api = '/v1/upload_image'
+        url = self.host + api
+        files = {
+            'file': (file.split('/')[-1], open(file, 'rb'))
+        }
+        headers = {
+            "access_token": self.token
+        }
         try:
-            res = conn.getresponse()
-            logger.debug('http status: %d' % res.status)
-            if (res.status == 200):
-                res = res.read()
-                media_id = json.loads(res.decode('ascii'))['media_id']
-                logger.debug("file uploaded successfully. media_id: %s" % media_id)
-                return media_id
+            conn = requests.post(
+                                    url,
+                                    files = files,
+                                    headers = headers
+                                )
+            logger.debug('HTTP Status Code: %d' % conn.status_code)
+            if (conn.status_code == 200):
+                result = json.loads(conn.text)
+                logger.debug("Result: %s" % conn.text)
+                return result
             else:
-                logger.debug(res.read())
+                logger.debug("Result: %s" % conn.text)
                 raise RestError("Status Code: ", conn.status_code)
         except Exception as e:
             logger.debug(e)
@@ -152,56 +152,33 @@ class SensifaiApi(object):
 
     def image_by_url(self, image_url):
         if not isinstance(image_url, str):
-            raise ApiError("image_url should be str")
+            raise ApiError("Image url should be string")
 
-        url = '/v1/upload_image_url'
-        conn = HTTPSConnection(self.host)
-
-        body = {'image_url': image_url}
-        body = json.dumps(body).encode('ascii')
-
-        headers = self._set_boilerplate_headers(**{'Content-Type': 'application/json'})
-
-        conn.request('POST', url, body, headers)
-
+        api = '/v1/upload_image_url'
+        url = self.host + api
+        payload = {
+            "image_url" : image_url,
+        }
+        headers = {
+            "access_token": self.token,
+            "Content-type": "application/json"
+        }
         try:
-            res = conn.getresponse()
-            logger.debug('http status: %d' % res.status)
-            if (res.status == 200):
-                res = res.read()
-                media_id = json.loads(res.decode('ascii'))['media_id']
-                logger.debug("file uploaded successfully. media_id: %s" % media_id)
-                return media_id
+            conn = requests.post(
+                                    url,
+                                    data = json.dumps(payload),
+                                    headers = headers
+                                )
+            logger.debug('HTTP Status Code: %d' % conn.status_code)
+            if (conn.status_code == 200):
+                logger.debug("Result: %s" % conn.text)
+                result = json.loads(conn.text)
+                return result
             else:
-                raise RestError("status code: ", res.status)
+                logger.debug("Result: %s" % conn.text)
                 raise RestError("Status Code: ", conn.status_code)
         except Exception as e:
             logger.debug(e)
-            raise RestError("Problem in uploading image....")
-
-
-    def predict_image(self, media_id, models):
-        if not isinstance(media_id, str) or media_id == "":
-            raise ApiError("media_id should be valid string")
-
-        if not isinstance(models, list):
-            raise ApiError("models should be list")
-
-        url = '/api/models/image'
-        conn = HTTPSConnection(self.host)
-
-        body = {'media_id': media_id, 'models': models}
-        body = json.dumps(body).encode('ascii')
-
-        headers = self._set_boilerplate_headers(**{'Content-Type': 'application/json'})
-
-        conn.request('POST', url, body, headers)
-        try:
-            res = conn.getresponse()
-            logger.debug('http status: %d' % res.status)
-            res = res.read()
-            return json.loads(res.decode('ISO-8859-1'))
-        except Exception as e:
             raise RestError("Problem in uploading image...")
 
     def predict_video(self, media_id, models):
@@ -247,7 +224,7 @@ class SensifaiApi(object):
         return self.predict_video(media_id, models)
 
 
-    def start_image_model(self, models, **kwargs):
+    def start_image_model(self, **kwargs):
         if not kwargs:
             raise ValueError('url or file must be provided as keyword arguments')
         if 'url' in kwargs and 'file' in kwargs:

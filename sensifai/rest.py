@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Sensifai Python Client
 """
@@ -7,12 +5,14 @@ Sensifai Python Client
 import os
 import json
 import logging
-from http.client import HTTPSConnection
+import requests
 
+from http.client import HTTPSConnection
 from .utils import (
     encode_multipart_data,
 )
 
+# Logging in console
 logger = logging.getLogger('sensifai')
 formatter = logging.Formatter('%(levelname)s - %(message)s')
 
@@ -23,18 +23,14 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 logger.setLevel(logging.DEBUG)
 
-
-
 class ApiError(Exception):
     pass
-
 
 class RestError(Exception):
     pass
 
-
 class SensifaiApi(object):
-    def __init__(self, token=None, host=None):
+    def __init__(self, token = None, host = None):
         """
         Initialize SensifaiApi
 
@@ -42,9 +38,11 @@ class SensifaiApi(object):
         ----------
         token : string
             to get your key visit https://developer.sensifai.com
-        host : string, optional
-
+        host : string
+            default to https://api.sensifai.com unless you set
+            SENSIFAI_API_BASE enviroment variable
         """
+
         if token:
             self.token = token
         else:
@@ -63,10 +61,9 @@ class SensifaiApi(object):
 
         self._user_agent = 'Sensifai Python Client'
 
-
     def video_by_file(self, file):
         if not isinstance(file, str):
-            raise ApiError("file should be str")
+            raise ApiError("File should be a path on your system")
 
         body, content_type, content_length = encode_multipart_data(file)
         conn = HTTPSConnection(self.host)
@@ -93,8 +90,6 @@ class SensifaiApi(object):
         except Exception as e:
             logger.debug(e)
             raise RestError("Problem in uploading video....")
-
-
 
     def video_by_url(self, video_url):
         if not isinstance(video_url, str):
@@ -125,10 +120,9 @@ class SensifaiApi(object):
             logger.debug(e)
             raise RestError("Problem in uploading video....")
 
-
     def image_by_file(self, file):
         if not isinstance(file, str):
-            raise ApiError("file should be str")
+            raise ApiError("File should be a path on your system")
 
         body, content_type, content_length = encode_multipart_data(file)
         conn = HTTPSConnection(self.host)
@@ -151,11 +145,10 @@ class SensifaiApi(object):
                 return media_id
             else:
                 logger.debug(res.read())
-                raise RestError("status code: ", res.status)
+                raise RestError("Status Code: ", conn.status_code)
         except Exception as e:
             logger.debug(e)
-            raise RestError("Problem in uploading image....")
-
+            raise RestError("Problem in uploading image...")
 
     def image_by_url(self, image_url):
         if not isinstance(image_url, str):
@@ -181,6 +174,7 @@ class SensifaiApi(object):
                 return media_id
             else:
                 raise RestError("status code: ", res.status)
+                raise RestError("Status Code: ", conn.status_code)
         except Exception as e:
             logger.debug(e)
             raise RestError("Problem in uploading image....")
@@ -208,8 +202,7 @@ class SensifaiApi(object):
             res = res.read()
             return json.loads(res.decode('ISO-8859-1'))
         except Exception as e:
-            raise RestError("RestError", e)
-
+            raise RestError("Problem in uploading image...")
 
     def predict_video(self, media_id, models):
         if not isinstance(media_id, str) or media_id == "":
@@ -240,8 +233,6 @@ class SensifaiApi(object):
         except Exception as e:
             raise RestError("Rest Error", e)
 
-
-
     def start_video_model(self, models, **kwargs):
         if not kwargs:
             raise ValueError('url or file must be provided as keyword arguments')
@@ -262,14 +253,12 @@ class SensifaiApi(object):
         if 'url' in kwargs and 'file' in kwargs:
             raise ValueError('either url or file should be provided as keyword arguments, not both')
 
-        result = ""
+        result = None
         if 'url' in kwargs:
             result = self.image_by_url(kwargs['url'])
         elif 'file' in kwargs:
             result = self.image_by_file(kwargs['file'])
         return result
-        # return self.predict_image(media_id, models)
-
 
     def get_video_results(self, task_id):
         url = '/api/models/get_video_results'

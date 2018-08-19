@@ -62,60 +62,62 @@ class SensifaiApi(object):
         if not isinstance(file, str):
             raise ApiError("File should be a path on your system")
 
-        body, content_type, content_length = encode_multipart_data(file)
-        conn = HTTPSConnection(self.host)
-
-        headers = self._set_boilerplate_headers(**{
-            'Content-Type': content_type,
-            'Content-Length': content_length
-        })
-
-        url = '/v1/upload_video'
-        conn.request('POST', url, body, headers)
-
+        api = '/v1/upload_video'
+        url = self.host + api
+        files = {
+            'file': (file.split('/')[-1], open(file, 'rb'))
+        }
+        headers = {
+            "access_token": self.token
+        }
         try:
-            res = conn.getresponse()
-            logger.debug('http status: %d' % res.status)
-            if (res.status == 200):
-                res = res.read()
-                media_id = json.loads(res.decode('ascii'))['media_id']
-                logger.debug("file uploaded successfully. media_id: %s" % media_id)
+            conn = requests.post(
+                                    url,
+                                    files = files,
+                                    headers = headers
+                                )
+            logger.debug('HTTP Status Code: %d' % conn.status_code)
+            if (conn.status_code == 200):
+                media_id = json.loads(conn.text)['media_id']
+                logger.debug("File uploaded successfully.\nmedia_id: %s" % media_id)
                 return media_id
             else:
-                logger.debug(res.read())
-                raise RestError("status code: ", res.status)
+                logger.debug("Result: %s" % conn.text)
+                raise RestError("Status Code: ", conn.status_code)
         except Exception as e:
             logger.debug(e)
-            raise RestError("Problem in uploading video....")
+            raise RestError("Problem in uploading video...")
 
     def video_by_url(self, video_url):
         if not isinstance(video_url, str):
             raise ApiError("video_url should be str")
 
-        url = '/v1/upload_video_url'
-        conn = HTTPSConnection(self.host)
-
-        body = {'video_url': video_url}
-        body = json.dumps(body).encode('ascii')
-
-        headers = self._set_boilerplate_headers(**{'Content-Type': 'application/json'})
-
-        conn.request('POST', url, body, headers)
-
+        api = '/v1/upload_video_url'
+        url = self.host + api
+        payload = {
+            "video_url": video_url,
+        }
+        headers = {
+            "access_token": self.token,
+            "Content-type": "application/json"
+        }
         try:
-            res = conn.getresponse()
-            logger.debug('http status: %d' % res.status)
-            if (res.status == 200):
-                res = res.read()
-                media_id = json.loads(res.decode('ascii'))['media_id']
-                logger.debug("file uploaded successfully. media_id: %s" % media_id)
+            conn = requests.post(
+                                    url,
+                                    data = json.dumps(payload),
+                                    headers = headers
+                                )
+            logger.debug('HTTP Status Code: %d' % conn.status_code)
+            if (conn.status_code == 200):
+                media_id = json.loads(conn.text)['media_id']
+                logger.debug("File uploaded successfully.\nmedia_id: %s" % media_id)
                 return media_id
             else:
-                logger.debug(res.read())
-                raise RestError("http status: %d" % res.status)
+                logger.debug("Result: %s" % conn.text)
+                raise RestError("Status Code: ", conn.status_code)
         except Exception as e:
             logger.debug(e)
-            raise RestError("Problem in uploading video....")
+            raise RestError("Problem in uploading video...")
 
     def image_by_file(self, file):
         if not isinstance(file, str):
@@ -178,36 +180,33 @@ class SensifaiApi(object):
             logger.debug(e)
             raise RestError("Problem in uploading image...")
 
-    def predict_video(self, media_id, models):
-        if not isinstance(media_id, str) or media_id == "":
+    def predict_video(self, media_id):
+        if not isinstance(media_id, str) or not media_id:
             raise ValueError("media_id should be valid string")
 
-        if not isinstance(models, list):
-            raise ApiError("models should be list")
-
-        url = '/api/models/video'
-        conn = HTTPSConnection(self.host)
-
-        body = {'media_id': media_id, 'models': models}
-        body = json.dumps(body).encode('ascii')
-
-        headers = self._set_boilerplate_headers(**{'Content-Type': 'application/json'})
-
-        conn.request('POST', url, body, headers)
+        api = '/v1/get_video_result/'
+        url = self.host + api + media_id
+        headers = {
+            "access_token": self.token,
+        }
         try:
-            res = conn.getresponse()
-            resp = res.read().decode('ISO-8859-1')
-            logger.debug('http status: %d' % res.status)
-            logger.debug('http response: %s' % resp)
-            if (res.status == 200):
-                return json.loads(resp)
-            if (res.status == 102):
-                logger.debug("Converting file")
-                return json.loads(resp)
+            conn = requests.get(
+                                    url,
+                                    headers = headers
+                                )
+            logger.debug('HTTP Status Code: %d' % conn.status_code)
+            if (conn.status_code == 200):
+                return json.loads(conn.text)
+            elif (conn.status_code == 102):
+                logger.debug("Converting file...")
+                return json.loads(conn.text)
+            else:
+                logger.debug("Result: %s" % conn.text)
+                raise RestError("Status Code: ", conn.status_code)
         except Exception as e:
             raise RestError("Rest Error", e)
 
-    def start_video_model(self, models, **kwargs):
+    def start_video_model(self, **kwargs):
         if not kwargs:
             raise ValueError('url or file must be provided as keyword arguments')
         if 'url' in kwargs and 'file' in kwargs:

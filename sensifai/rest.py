@@ -8,9 +8,6 @@ import logging
 import requests
 
 from http.client import HTTPSConnection
-from .utils import (
-    encode_multipart_data,
-)
 
 # Logging in console
 logger = logging.getLogger('sensifai')

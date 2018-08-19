@@ -199,10 +199,10 @@ class SensifaiApi(object):
                 return json.loads(conn.text)
             elif (conn.status_code == 102):
                 logger.debug("Converting file...")
-                return json.loads(conn.text)
+                return "Please Wait Until Convert Complete"
             else:
                 logger.debug("Result: %s" % conn.text)
-                raise RestError("Status Code: ", conn.status_code)
+                raise RestError("Status Code: %s", conn.status_code)
         except Exception as e:
             raise RestError("Rest Error", e)
 

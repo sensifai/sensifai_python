@@ -35,36 +35,32 @@ from sensifai import SensifaiApi
 
 # Initialize an instance with Your Private token
 private_token="xxx_yyy_zzz_Your_Token"
-api_call = SensifaiApi(private_token, host= "host#xxx.sensifai.com")
+api_call = SensifaiApi(private_token, [host= "host#xxx.sensifai.com"])
 ```
-after importing library and setting api token you are able to start a new task by giving a file/link and determine models from our pre-trained models. you can choose multiple models based on your needs.Currently our api supports the following models: 
+after importing library and setting api token you are able to start a new task by giving a file/link and determine models from our pre-trained models. you can choose multiple models based on your needs when you create the application  in developer profile page .Currently our api supports the following models: 
 
 + tagging  for shot detection and video annotation 
 + face : face detection and celebrity recognition
 + action : Action Recognition
 + nsfw : Not safe for work 
-+ sport : sport category
 
-```python
-models= ['tagging' ,'face' , 'action']
-```
 If wanting to predict a link, use `start_video_model` with  `url` attribute.
 ```python
 # Call by Video URL
-task_meta = api_call.start_video_model(models , url="link to video")
+task_meta = api_call.start_video_model( url="link to video")
 ```
 
 otherwise ,If you want to predict a local file, use `start_video_model` with  `file` attribute.
 ```python
 
 # Call by Video File
-task_meta = api_call.start_video_model(models , file="path to video")
+task_meta = api_call.start_video_model( file="path to video")
 ```
 We use a non-blocking procedure, due to the fact that processing long videos can takes too long (upto an hour).  To retrieve results you need to call `get_video_results` method. if the result is not ready you recieve htp 102 code, otherwise The response will be a JSON structure.
 ```python
 
 #To retrieve results:
-result = api_call.get_video_results(task_meta['task_id'])
+result = api_call.predict_video(task_meta['task_id'])
 ```
 Here's how to save all the predicted concepts associated with the video.
 
@@ -91,7 +87,7 @@ private_token="xxx_yyy_zzz_Your_Token"
 api_call = SensifaiApi(private_token , host = "host#xxx.sensifai.com")
 ```
 
-start a new task by giving a file/link and models. you can choose multiple models.
+start a new task by giving a file/link and models. you can choose multiple models in developer profile page when creating the application .
 
 + Currently our api supports the following # models : 
 + tagging  for shot detection and video annotation 
@@ -100,24 +96,17 @@ start a new task by giving a file/link and models. you can choose multiple model
 + Landmark : landmark and famous places recognition
 + nsfw : Not safe for work 
 
-```python
-
-models= ['tagging' ,'landmark' , 'logo']
-```
 Its time to start the prediction procedure. If wanting to predict a link, use `start_image_model` with  `url` attribute.otherwise ,If you want to predict a local file, use `start_image_model` with  `file` attribute.
 
 
 ```python
 # Call by Image URL
-task_meta = api_call.start_image_model(models , url="link to image")
+result = api_call.start_image_model(url="link to image")
 
 # Call by Image File
-task_meta = api_call.start_image_model(models , file="path to image")
+result = api_call.start_image_model(file="path to image")
 ```
-To retrieve results you need to call `get_image_results` method. The response will be  recieved shortly in JSON structure.
-```python
-#To retrieve results as a JSON object:
-result = api_call.get_image_results(task_meta['task_id']) 
+
 ```
 And finally, here's how to save all the predicted concepts associated with the image.
 ```python

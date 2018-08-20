@@ -11,7 +11,7 @@ from http.client import HTTPSConnection
 
 # Logging in console
 logger = logging.getLogger('sensifai')
-formatter = logging.Formatter('%(levelname)s - %(message)s')
+formatter = logging.Formatter('%(message)s')
 
 logger.handlers = []
 ch = logging.StreamHandler()
@@ -217,7 +217,6 @@ class SensifaiApi(object):
             media_id = self.video_by_url(kwargs['url'])
         elif 'file' in kwargs:
             media_id = self.video_by_file(kwargs['file'])
-        return self.predict_video(media_id)
 
 
     def start_image_model(self, **kwargs):
@@ -255,13 +254,3 @@ class SensifaiApi(object):
                 return
         except Exception as e:
             raise RestError("Rest Error", e)
-
-
-    def _set_boilerplate_headers(self, **kwargs):
-        headers = {}
-        headers['Authorization'] = 'Bearer %s' % self.token
-        headers['User-Agent'] = self._user_agent
-        if kwargs:
-            for (k,v) in kwargs.items():
-                headers[k] = v
-        return headers

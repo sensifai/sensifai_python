@@ -219,6 +219,7 @@ class SensifaiApi(object):
             media_id = self.video_by_url(kwargs['url'])
         elif 'file' in kwargs:
             media_id = self.video_by_file(kwargs['file'])
+        return media_id
 
 
     def start_image_model(self, **kwargs):

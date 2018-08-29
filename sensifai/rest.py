@@ -135,7 +135,8 @@ class SensifaiApi(object):
             conn = requests.post(
                                     url,
                                     files = files,
-                                    headers = headers
+                                    headers = headers,
+                                    timeout = 1200
                                 )
             logger.debug('HTTP Status Code: %d' % conn.status_code)
             if (conn.status_code == 200):
@@ -166,7 +167,8 @@ class SensifaiApi(object):
             conn = requests.post(
                                     url,
                                     data = json.dumps(payload),
-                                    headers = headers
+                                    headers = headers,
+                                    timeout = 1200
                                 )
             logger.debug('HTTP Status Code: %d' % conn.status_code)
             if (conn.status_code == 200):
@@ -231,26 +233,3 @@ class SensifaiApi(object):
         elif 'file' in kwargs:
             result = self.image_by_file(kwargs['file'])
         return result
-
-    def get_video_results(self, task_id):
-        url = '/api/models/get_video_results'
-        conn = HTTPSConnection(self.host)
-
-        body = {'task_id': task_id}
-        body = json.dumps(body).encode('ascii')
-
-        headers = self._set_boilerplate_headers(**{'Content-Type': 'application/json'})
-
-        conn.request('POST', url, body, headers)
-
-        try:
-            res = conn.getresponse()
-            resp = res.read().decode('ISO-8859-1')
-            logger.debug('http status: %d' % res.status)
-            if (res.status == 200):
-                return json.loads(resp)
-            if (res.status == 102):
-                logger.debug("http response: %s" % 'Still in progress')
-                return
-        except Exception as e:
-            raise RestError("Rest Error", e)

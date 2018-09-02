@@ -78,9 +78,14 @@ class SensifaiApi(object):
                                 )
             logger.debug('HTTP Status Code: %d' % conn.status_code)
             if (conn.status_code == 202):
-                media_id = json.loads(conn.text)['task_id']
-                logger.debug("File uploaded successfully.\nmedia_id: %s" % media_id)
-                return media_id
+                task_id = json.loads(conn.text)['task_id']
+                location = json.loads(conn.text)['location']
+                result = {
+                    "Media ID": task_id,
+                    "URL": self.url + "/" + location
+                }
+                logger.debug("File uploaded successfully.\n%s" % result)
+                return task_id
             else:
                 logger.debug("Result: %s" % conn.text)
                 raise RestError("Status Code: ", conn.status_code)
@@ -109,9 +114,14 @@ class SensifaiApi(object):
                                 )
             logger.debug('HTTP Status Code: %d' % conn.status_code)
             if (conn.status_code == 202):
-                media_id = json.loads(conn.text)['task_id']
-                logger.debug("File uploaded successfully.\nmedia_id: %s" % media_id)
-                return media_id
+                task_id = json.loads(conn.text)['task_id']
+                location = json.loads(conn.text)['location']
+                result = {
+                    "Media ID": task_id,
+                    "URL": self.url + "/" + location
+                }
+                logger.debug("File uploaded successfully.\n%s" % result)
+                return task_id
             else:
                 logger.debug("Result: %s" % conn.text)
                 raise RestError("Status Code: ", conn.status_code)
@@ -135,11 +145,18 @@ class SensifaiApi(object):
             conn = requests.post(
                                     url,
                                     files = files,
-                                    headers = headers,
-                                    timeout = 1200
+                                    headers = headers
                                 )
             logger.debug('HTTP Status Code: %d' % conn.status_code)
             if (conn.status_code == 200):
+                task_id = json.loads(conn.text)['task_id']
+                location = json.loads(conn.text)['location']
+                result = {
+                    "Media ID": task_id,
+                    "URL": self.url + "/" + location
+                }
+                logger.debug("File uploaded successfully.\n%s" % result)
+                return task_id
                 result = json.loads(conn.text)
                 logger.debug("Result: %s" % conn.text)
                 return result
@@ -167,14 +184,18 @@ class SensifaiApi(object):
             conn = requests.post(
                                     url,
                                     data = json.dumps(payload),
-                                    headers = headers,
-                                    timeout = 1200
+                                    headers = headers
                                 )
             logger.debug('HTTP Status Code: %d' % conn.status_code)
             if (conn.status_code == 200):
-                logger.debug("Result: %s" % conn.text)
-                result = json.loads(conn.text)
-                return result
+                task_id = json.loads(conn.text)['task_id']
+                location = json.loads(conn.text)['location']
+                result = {
+                    "Media ID": task_id,
+                    "URL": self.url + "/" + location
+                }
+                logger.debug("File uploaded successfully.\n%s" % result)
+                return task_id
             else:
                 logger.debug("Result: %s" % conn.text)
                 raise RestError("Status Code: ", conn.status_code)
@@ -182,7 +203,33 @@ class SensifaiApi(object):
             logger.debug(e)
             raise RestError("Problem in uploading image...")
 
-    def predict_video(self, media_id):
+    def get_image_result(self, media_id):
+        if not isinstance(media_id, str) or not media_id:
+            raise ValueError("media_id should be valid string")
+
+        api = '/v1/get_image_result/'
+        url = self.host + api + media_id
+        headers = {
+            "access_token": self.token,
+        }
+        try:
+            conn = requests.get(
+                                    url,
+                                    headers = headers
+                                )
+            logger.debug('HTTP Status Code: %d' % conn.status_code)
+            if (conn.status_code == 200):
+                return json.loads(conn.text)
+            elif (conn.status_code == 102):
+                logger.debug("Converting file...")
+                return "Please Wait Until Convert Complete"
+            else:
+                logger.debug("Result: %s" % conn.text)
+                raise RestError("Status Code: %s", conn.status_code)
+        except Exception as e:
+            raise RestError("Rest Error", e)
+
+    def get_video_result(self, media_id):
         if not isinstance(media_id, str) or not media_id:
             raise ValueError("media_id should be valid string")
 
@@ -214,7 +261,7 @@ class SensifaiApi(object):
         if 'url' in kwargs and 'file' in kwargs:
             raise ValueError('either url or file should be provided as keyword arguments, not both')
 
-        media_id = ""
+        media_id = None
         if 'url' in kwargs:
             media_id = self.video_by_url(kwargs['url'])
         elif 'file' in kwargs:
@@ -228,9 +275,9 @@ class SensifaiApi(object):
         if 'url' in kwargs and 'file' in kwargs:
             raise ValueError('either url or file should be provided as keyword arguments, not both')
 
-        result = None
+        media_id = None
         if 'url' in kwargs:
-            result = self.image_by_url(kwargs['url'])
+            media_id = self.image_by_url(kwargs['url'])
         elif 'file' in kwargs:
-            result = self.image_by_file(kwargs['file'])
-        return result
+            media_id = self.image_by_file(kwargs['file'])
+        return media_id

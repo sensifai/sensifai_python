@@ -82,7 +82,7 @@ class SensifaiApi(object):
                 location = json.loads(conn.text)['location']
                 result = {
                     "Media ID": task_id,
-                    "URL": self.url + "/" + location
+                    "URL": self.host + "/" + location
                 }
                 logger.debug("File uploaded successfully.\n%s" % result)
                 return task_id
@@ -118,7 +118,7 @@ class SensifaiApi(object):
                 location = json.loads(conn.text)['location']
                 result = {
                     "Media ID": task_id,
-                    "URL": self.url + "/" + location
+                    "URL": self.host + "/" + location
                 }
                 logger.debug("File uploaded successfully.\n%s" % result)
                 return task_id
@@ -153,7 +153,7 @@ class SensifaiApi(object):
                 location = json.loads(conn.text)['location']
                 result = {
                     "Media ID": task_id,
-                    "URL": self.url + "/" + location
+                    "URL": self.host + "/" + location
                 }
                 logger.debug("File uploaded successfully.\n%s" % result)
                 return task_id
@@ -192,7 +192,7 @@ class SensifaiApi(object):
                 location = json.loads(conn.text)['location']
                 result = {
                     "Media ID": task_id,
-                    "URL": self.url + "/" + location
+                    "URL": self.host + "/" + location
                 }
                 logger.debug("File uploaded successfully.\n%s" % result)
                 return task_id

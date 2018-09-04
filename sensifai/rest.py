@@ -148,7 +148,7 @@ class SensifaiApi(object):
                                     headers = headers
                                 )
             logger.debug('HTTP Status Code: %d' % conn.status_code)
-            if (conn.status_code == 200):
+            if (conn.status_code == 202):
                 task_id = json.loads(conn.text)['task_id']
                 location = json.loads(conn.text)['location']
                 result = {
@@ -187,7 +187,7 @@ class SensifaiApi(object):
                                     headers = headers
                                 )
             logger.debug('HTTP Status Code: %d' % conn.status_code)
-            if (conn.status_code == 200):
+            if (conn.status_code == 202):
                 task_id = json.loads(conn.text)['task_id']
                 location = json.loads(conn.text)['location']
                 result = {

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="sensifai",
-    version="0.1.0",
+    version="0.1.3",
     license='apache-2.0',
     description="Sensifai API Python Client",
     packages=find_packages(exclude=["docs", "tests"]),

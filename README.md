@@ -89,7 +89,7 @@ api_call = SensifaiApi(private_token )
 
 start a new task by giving a file/link and models. you can choose multiple models in developer profile page when creating the application.
 
-+ Currently our API supports the following # models : 
+Currently our API supports the following  models : 
 + tagging  for shot detection and video annotation 
 + face: face detection and celebrity recognition
 + logo: Logo and brand recognition

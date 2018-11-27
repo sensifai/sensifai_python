@@ -60,7 +60,7 @@ We use a non-blocking procedure, due to the fact that processing long videos can
 ```python
 
 #To retrieve results:
-result = api_call.get_video_result(task_meta['task_id'])
+result = api_call.get_video_result(task_meta)
 ```
 Here's how to save all the predicted concepts associated with the video.
 
@@ -101,17 +101,17 @@ It's time to start the prediction procedure. If wanting to predict a link, use `
 
 ```python
 # Call by Image URL
-task_meta =  = api_call.start_image_model(url="link to image")
+task_meta = api_call.start_image_model(url="link to image")
 
 # Call by Image File
-task_meta =  = api_call.start_image_model(file="path to image")
+task_meta = api_call.start_image_model(file="path to image")
 ```
 We use a non-blocking procedure, due to the fact that initializing the machines can take 1-5 minutes based on the models you choose.   To retrieve results you need to call `get_image_results` method. if the result is not ready you receive HTTP 102 code, otherwise, The response will be a JSON structure. if you get the result for the first image, you'll be able to get the result for next images very quickly. if you don't send a request for more than 15 minutes, we turn the system off automatically and if you send a new request after this gap, you have to wait for initialization time.  
 
 ```python
 
 #To retrieve results:
-result = api_call.get_image_result(task_meta['task_id'])
+result = api_call.get_image_result(task_meta)
 ```
 
 ```

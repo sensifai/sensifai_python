@@ -10,9 +10,9 @@ This Python client provides a wrapper around Sensifai <a href="https://developer
 
 Installation
 ---------------------
-The API client is available on Pip. You can simply install it with a `pip install`
+The API client is available on Pip. You can simply install it with ` pip install`
 ```sh
-pip install sensifai 
+pip3 install sensifai -U
 ```
 
 For more details on the installation, please refer to https://developer.sensifai.com/installation

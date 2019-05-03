@@ -79,7 +79,6 @@ class SensifaiApi(object):
                 data = json.loads(conn.text)['data']['uploadByUrl']
                 if data['result']:
                     logger.debug("File uploaded successfully.")
-                    logger.debug(data)
                     return data['taskId'], data['cannotUpload']
                 else:
                     logger.error("error: {}").format(data['error'])

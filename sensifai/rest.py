@@ -7,8 +7,6 @@ import json
 import logging
 import requests
 
-from http.client import HTTPSConnection
-
 # Logging in console
 logger = logging.getLogger('sensifai')
 formatter = logging.Formatter('%(message)s')
@@ -36,7 +34,7 @@ class SensifaiApi(object):
         token : string
             to get your key visit https://developer.sensifai.com
         host : string
-            default to https://api.sensifai.com unless you set
+            default to Https://dev-api.sensifai.com unless you set
             SENSIFAI_API_BASE enviroment variable
         """
 
@@ -54,230 +52,110 @@ class SensifaiApi(object):
             self.host = os.environ.get("SENSIFAI_API_BASE", None)
 
         if not self.host:
-            self.host = 'https://api.sensifai.com'
+            self.host = 'https://api.sensifai.com/api/'
 
         self._user_agent = 'Sensifai Python Client'
 
-    def video_by_file(self, file):
-        if not isinstance(file, str):
-            raise ApiError("File should be a path on your system")
+    def upload_by_urls(self, urls):
+        if not isinstance(urls, list):
+            raise ApiError("urls should be list")
 
-        api = '/v1/upload_video'
-        url = self.host + api
-        files = {
-            'file': (file.split('/')[-1], open(file, 'rb'))
-        }
-        headers = {
-            "access_token": self.token
-        }
-        try:
-            conn = requests.post(
-                                    url,
-                                    files = files,
-                                    headers = headers
-                                )
-            logger.debug('HTTP Status Code: %d' % conn.status_code)
-            if (conn.status_code == 202):
-                task_id = json.loads(conn.text)['task_id']
-                location = json.loads(conn.text)['location']
-                result = {
-                    "Media ID": task_id,
-                    "URL": self.host + "/" + location
-                }
-                logger.debug("File uploaded successfully.\n%s" % result)
-                return task_id
-            else:
-                logger.debug("Result: %s" % conn.text)
-                raise RestError("Status Code: ", conn.status_code)
-        except Exception as e:
-            logger.debug(e)
-            raise RestError("Problem in uploading video...")
-
-    def video_by_url(self, video_url):
-        if not isinstance(video_url, str):
-            raise ApiError("video_url should be str")
-
-        api = '/v1/upload_video_url'
-        url = self.host + api
         payload = {
-            "video_url": video_url,
+        'query':'mutation( $token: String!, $urls: [String!]! ){uploadByUrl( token: $token, urls: $urls){result error taskId cannotUpload}}',
+        'variables':{'urls':urls,
+                     'token':self.token}
         }
         headers = {
-            "access_token": self.token,
-            "Content-type": "application/json"
+            "content-type": "application/json"
         }
         try:
             conn = requests.post(
-                                    url,
+                                    self.host,
                                     data = json.dumps(payload),
-                                    headers = headers
-                                )
-            logger.debug('HTTP Status Code: %d' % conn.status_code)
-            if (conn.status_code == 202):
-                task_id = json.loads(conn.text)['task_id']
-                location = json.loads(conn.text)['location']
-                result = {
-                    "Media ID": task_id,
-                    "URL": self.host + "/" + location
-                }
-                logger.debug("File uploaded successfully.\n%s" % result)
-                return task_id
-            else:
-                logger.debug("Result: %s" % conn.text)
-                raise RestError("Status Code: ", conn.status_code)
-        except Exception as e:
-            logger.debug(e)
-            raise RestError("Problem in uploading video...")
-
-    def image_by_file(self, file):
-        if not isinstance(file, str):
-            raise ApiError("File should be a path on your system")
-
-        api = '/v1/upload_image'
-        url = self.host + api
-        files = {
-            'file': (file.split('/')[-1], open(file, 'rb'))
-        }
-        headers = {
-            "access_token": self.token
-        }
-        try:
-            conn = requests.post(
-                                    url,
-                                    files = files,
-                                    headers = headers
-                                )
-            logger.debug('HTTP Status Code: %d' % conn.status_code)
-            if (conn.status_code == 202):
-                task_id = json.loads(conn.text)['task_id']
-                location = json.loads(conn.text)['location']
-                result = {
-                    "Media ID": task_id,
-                    "URL": self.host + "/" + location
-                }
-                logger.debug("File uploaded successfully.\n%s" % result)
-                return task_id
-                result = json.loads(conn.text)
-                logger.debug("Result: %s" % conn.text)
-                return result
-            else:
-                logger.debug("Result: %s" % conn.text)
-                raise RestError("Status Code: ", conn.status_code)
-        except Exception as e:
-            logger.debug(e)
-            raise RestError("Problem in uploading image...")
-
-    def image_by_url(self, image_url):
-        if not isinstance(image_url, str):
-            raise ApiError("Image url should be string")
-
-        api = '/v1/upload_image_url'
-        url = self.host + api
-        payload = {
-            "image_url" : image_url,
-        }
-        headers = {
-            "access_token": self.token,
-            "Content-type": "application/json"
-        }
-        try:
-            conn = requests.post(
-                                    url,
-                                    data = json.dumps(payload),
-                                    headers = headers
-                                )
-            logger.debug('HTTP Status Code: %d' % conn.status_code)
-            if (conn.status_code == 202):
-                task_id = json.loads(conn.text)['task_id']
-                location = json.loads(conn.text)['location']
-                result = {
-                    "Media ID": task_id,
-                    "URL": self.host + "/" + location
-                }
-                logger.debug("File uploaded successfully.\n%s" % result)
-                return task_id
-            else:
-                logger.debug("Result: %s" % conn.text)
-                raise RestError("Status Code: ", conn.status_code)
-        except Exception as e:
-            logger.debug(e)
-            raise RestError("Problem in uploading image...")
-
-    def get_image_result(self, media_id):
-        if not isinstance(media_id, str) or not media_id:
-            raise ValueError("media_id should be valid string")
-
-        api = '/v1/get_image_result/'
-        url = self.host + api + media_id
-        headers = {
-            "access_token": self.token,
-        }
-        try:
-            conn = requests.get(
-                                    url,
                                     headers = headers
                                 )
             logger.debug('HTTP Status Code: %d' % conn.status_code)
             if (conn.status_code == 200):
+                data = json.loads(conn.text)['data']['uploadByUrl']
+                if data['result']:
+                    logger.debug("File uploaded successfully.")
+                    logger.debug(data)
+                    return data['taskId'], data['cannotUpload']
+                else:
+                    logger.error("error: {}").format(data['error'])
+            else:
+                logger.error("Result: %s" % conn.text)
+                raise RestError("Status Code: ", conn.status_code)
+        except Exception as e:
+            logger.error(e)
+            raise RestError("Something went wrong, contact to support")
+
+    def upload_by_file(self, files):
+        if not isinstance(files, list):
+            raise ApiError("Files should be a list")
+        file_place = '[' + ', '.join(['null' for i in files]) + ']'
+        file_map = json.dumps({ str(k): ["variables.files.{}".format(k)] for k in range(0,len(files))})
+        files_dict = {"{}".format(i):(v, open(v, 'rb')) for i,v in enumerate(files)}
+        payload = {
+            'operations': (None, '{"query": "mutation($files: [Upload!]!, $token :String!) { uploadByFile(files: $files, token:$token ) { error result taskId cannotUpload} }", "variables": { "files": ' + file_place + ' ,"token":"' + self.token  + '"}}'),
+            'map': (None, file_map),
+        }
+        payload.update(files_dict)
+        try:
+            conn = requests.post(
+                                    self.host,
+                                    files = payload
+                                )
+            logger.debug('HTTP Status Code: %d' % conn.status_code)
+            if (conn.status_code == 200):
+                data = json.loads(conn.text)['data']['uploadByFile']
+                if data['result']:
+                    logger.debug("File uploaded successfully.")
+                    return data['taskId'], data['cannotUpload']
+                else:
+                    logger.error("error: {}").format(data['error'])
+            else:
+                logger.error("Result: %s" % conn.text)
+                raise RestError("Rest Error", e)
+
+        except Exception as e:
+            logger.error(e)
+            raise RestError("Something went wrong, contact to support")
+
+    def get_result(self, task_id):
+
+        if not isinstance(task_id, str) or not task_id:
+            raise ValueError("task_id should be valid string")
+
+        payload = {
+        'query': 'query( $taskId: String! ){apiResult( taskId: $taskId){ ...on ImageResult{isDone errors imageResults{nsfwResult{type probability value}logoResult{description}landmarkResult{description}taggingResult{label probability}faceResult{detectedBoxesPercentage probability detectedFace label}}} ... on VideoResult{fps duration isDone framesCount errors videoResults{startSecond endSecond startFrame endFrame thumbnailPath taggingResult{label probability}actionResult{label probability}celebrityResult{name frequency} sportResult{label probability}nsfwResult{probability type value}}}}}',
+        'variables':{'taskId':task_id}
+        }
+        try:
+            conn = requests.post(
+                                    self.host,
+                                    data = json.dumps(payload),
+                                )
+            logger.debug('HTTP Status Code: %d' % conn.status_code)
+            if (conn.status_code == 200):
                 return json.loads(conn.text)
-            elif (conn.status_code == 102):
-                logger.debug("Converting file...")
-                return "Please Wait Until Convert Complete"
             else:
                 logger.debug("Result: %s" % conn.text)
                 raise RestError("Status Code: %s", conn.status_code)
         except Exception as e:
             raise RestError("Rest Error", e)
 
-    def get_video_result(self, media_id):
-        if not isinstance(media_id, str) or not media_id:
-            raise ValueError("media_id should be valid string")
 
-        api = '/v1/get_video_result/'
-        url = self.host + api + media_id
-        headers = {
-            "access_token": self.token,
-        }
-        try:
-            conn = requests.get(
-                                    url,
-                                    headers = headers
-                                )
-            logger.debug('HTTP Status Code: %d' % conn.status_code)
-            if (conn.status_code == 200):
-                return json.loads(conn.text)
-            elif (conn.status_code == 102):
-                logger.debug("Converting file...")
-                return "Please Wait Until Convert Complete"
-            else:
-                logger.debug("Result: %s" % conn.text)
-                raise RestError("Status Code: %s", conn.status_code)
-        except Exception as e:
-            raise RestError("Rest Error", e)
-
-    def start_video_model(self, **kwargs):
+    def start_model(self, **kwargs):
         if not kwargs:
             raise ValueError('url or file must be provided as keyword arguments')
-        if 'url' in kwargs and 'file' in kwargs:
+        if 'urls' in kwargs and 'files' in kwargs:
             raise ValueError('either url or file should be provided as keyword arguments, not both')
 
-        media_id = None
-        if 'url' in kwargs:
-            media_id = self.video_by_url(kwargs['url'])
-        elif 'file' in kwargs:
-            media_id = self.video_by_file(kwargs['file'])
-        return media_id
+        task_id = None
+        if 'urls' in kwargs:
+            task_id = self.upload_by_urls(kwargs['urls'])
+        elif 'files' in kwargs:
+            task_id = self.upload_by_files(kwargs['files'])
+        return task_id
 
-
-    def start_image_model(self, **kwargs):
-        if not kwargs:
-            raise ValueError('url or file must be provided as keyword arguments')
-        if 'url' in kwargs and 'file' in kwargs:
-            raise ValueError('either url or file should be provided as keyword arguments, not both')
-
-        media_id = None
-        if 'url' in kwargs:
-            media_id = self.image_by_url(kwargs['url'])
-        elif 'file' in kwargs:
-            media_id = self.image_by_file(kwargs['file'])
-        return media_id

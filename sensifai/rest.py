@@ -137,7 +137,8 @@ class SensifaiApi(object):
                                 )
             logger.debug('HTTP Status Code: %d' % conn.status_code)
             if (conn.status_code == 200):
-                return json.loads(conn.text)
+                data = json.loads(conn.text)['data']['apiResult']
+                return data
             else:
                 logger.debug("Result: %s" % conn.text)
                 raise RestError("Status Code: %s", conn.status_code)

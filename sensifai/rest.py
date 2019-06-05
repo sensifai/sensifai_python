@@ -61,7 +61,7 @@ class SensifaiApi(object):
             raise ApiError("urls should be list")
 
         payload = {
-        'query':'mutation( $token: String!, $urls: [String!]! ){uploadByUrl( token: $token, urls: $urls){result error taskIdList{file taskId} cannotUpload}}',
+        'query':'mutation( $token: String!, $urls: [String!]! ){uploadByUrl( token: $token, urls: $urls){result error succeed{file taskId} cannotUpload}}',
         'variables':{'urls':urls,
                      'token':self.token}
         }
@@ -96,7 +96,7 @@ class SensifaiApi(object):
         file_map = json.dumps({ str(k): ["variables.files.{}".format(k)] for k in range(0,len(files))})
         files_dict = {"{}".format(i):(v, open(v, 'rb')) for i,v in enumerate(files)}
         payload = {
-            'operations': (None, '{"query": "mutation($files: [Upload!]!, $token :String!) { uploadByFile(files: $files, token:$token ) { error result taskIdList{file taskId} cannotUpload} }", "variables": { "files": ' + file_place + ' ,"token":"' + self.token  + '"}}'),
+            'operations': (None, '{"query": "mutation($files: [Upload!]!, $token :String!) { uploadByFile(files: $files, token:$token ) { error result succeed{file taskId} cannotUpload} }", "variables": { "files": ' + file_place + ' ,"token":"' + self.token  + '"}}'),
             'map': (None, file_map),
         }
         payload.update(files_dict)

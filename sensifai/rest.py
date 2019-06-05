@@ -79,7 +79,7 @@ class SensifaiApi(object):
                 data = json.loads(conn.text)['data']['uploadByUrl']
                 if data['result']:
                     logger.debug("File uploaded successfully.")
-                    return {'taskIds':data['taskIdList'], 'cannotUpload':data['cannotUpload']}
+                    return {'succeed':data['succeed'], 'cannotUpload':data['cannotUpload']}
                 else:
                     logger.error("error: {}").format(data['error'])
             else:
@@ -110,7 +110,7 @@ class SensifaiApi(object):
                 data = json.loads(conn.text)['data']['uploadByFile']
                 if data['result']:
                     logger.debug("File uploaded successfully.")
-                    return {'taskIds':data['taskIdList'], 'cannotUpload':data['cannotUpload']}
+                    return {'succeed':data['succeed'], 'cannotUpload':data['cannotUpload']}
                 else:
                     logger.error("error: {}").format(data['error'])
             else:

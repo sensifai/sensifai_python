@@ -23,7 +23,7 @@ Please always make sure that you'll use the latest version of our SDK.
 #### Sample Usage
 ---------------------
 
-The following example will set up the client and predict video attributes. First of all, you need to import the library and define an instance from `SensifaiApi` class using `SENSIFAI_API_TOKEN`. You can get a free limited `token` from https://developer.sensifai.com  by crating an application. 
+The following example will set up the client and predict video attributes. First of all, you need to import the library and define an instance from `SensifaiApi` class using `SENSIFAI_API_TOKEN`. You can get a free limited `token` from https://developer.sensifai.com  by creating an application. 
 
 ```python
 from sensifai import SensifaiApi
@@ -47,26 +47,20 @@ task_dict = sensifai_api.start_model(urls = urls_list)
 files_list = ['/home/user/1.png', '/var/file/video.jpg']
 task_dict = sensifai_api.start_model(files = files_list)
 ```
-as you can see, `start_model` return a variable that is a dict contain `taskIds` that a list of dicts with `file` and `taskId` and `cannotUpload` that are links that cannot upload list contain the links that the server failed to get them or conflict with the token. for example, if you set a video token for an instance and send image with it, they won't be processed and return cannot upload list.
+as you can see, `start_model` return a variable that is a dictionary contain `succeed` that a list of dictionaries with `file` and `taskId` and `cannotUpload` that are links that cannot upload list contain the links that the server failed to get them or conflict with the token. for example, if you set a video token for an instance and send image with it, they won't be processed and return cannot upload list.
 
 
 
-in the end, for retrieve result of a task, pass it through `get_result` don't remember to pass a single task id! this function won't work with a list of task id.
+at the end, to retrieve result of a task, pass it through `get_result` . Please don't remember to pass a single task id! this function won't work with a list of task id.
 
 ```python
 result = sensifai_api.get_result(task_id)
 ```
 
-Notice: result type is dict. there are two variables that always present in the result, isDone, and errors. the first one defines the state of a task. if all selected services are ready, isDone will be true otherwise it will be false if the task id belongs to an image, you'll get imageResults in your dict and for video, you'll get videoResults.
+Notice: result type is dictionary. there are two variables that always present in the result, isDone, and errors. the first one defines the state of a task. if all selected services are ready, isDone will be true, otherwise it will be false if the task id belongs to an image, you'll get imageResults in your dictionary and for video, you'll get videoResults.
 
-if task id belongs to a video, you'll get fps, duration, and framesCount too. imageResults is a dict of selected service result that you choose when you're creating the token. videoResults is a list of shots that every shot is a dict contains startSecond, endSecond, startFrame, endFrame, thumbnailPath and selected service result that you choose when you're creating the token.
+if task id belongs to a video, you'll get fps, duration, and framesCount too. imageResults is a dictionary of selected service results that you choose when you're creating the application. videoResults is a list of shots that every shot is a dictionary contains startSecond, endSecond, startFrame, endFrame, thumbnailPath and selected service result that you choose when you're creating the token.
 
-
-```python
-
-#To retrieve results:
-result = api_call.get_video_result(task_meta)
-```
 Here's how to save all the predicted concepts associated with the video.
 
 ```python

@@ -54,7 +54,7 @@ as you can see, `start_model` return a variable that is a dictionary contain `su
 at the end, to retrieve result of a task, pass it through `get_result` . Please don't remember to pass a single task id! this function won't work with a list of task id.
 
 ```python
-result = sensifai_api.get_result(task_id)
+results = sensifai_api.get_result(task_id)
 ```
 
 Notice: result type is dictionary. there are two variables that always present in the result, isDone, and errors. the first one defines the state of a task. if all selected services are ready, isDone will be true, otherwise it will be false if the task id belongs to an image, you'll get imageResults in your dictionary and for video, you'll get videoResults.
@@ -63,9 +63,21 @@ if task id belongs to a video, you'll get fps, duration, and framesCount too. im
 
 Here's how to save all the predicted concepts associated with the video.
 
+
+
 ```python
 
+from pprint import  pprint                                                                 import json
+                                         
+
+for id in task_dict["succeed"]: 
+    result = sensifai_api.get_result(id["taskId"]) 
+    pprint(id["file"]) 
+    JSON_FILE_PATH="/home/foo/{}-result.json".format(id["file"])
+    json.dump(result,open(JSON_FILE_PATH,'w'))  
+    pprint(result) 
+    pprint("_____________________________") 
+
+
 #To save as a JSON file
-import json
-JSON_FILE_PATH="/home/foo/result.json"
-json.dump(result,open(JSON_FILE_PATH,'w'))
+

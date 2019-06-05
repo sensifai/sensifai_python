@@ -89,7 +89,7 @@ class SensifaiApi(object):
             logger.error(e)
             raise RestError("Something went wrong, contact to support")
 
-    def upload_by_file(self, files):
+    def upload_by_files(self, files):
         if not isinstance(files, list):
             raise ApiError("Files should be a list")
         file_place = '[' + ', '.join(['null' for i in files]) + ']'

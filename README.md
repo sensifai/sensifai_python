@@ -5,7 +5,7 @@ Sensifai API Python Client
 
 Overview
 ---------------------
-This Python client provides a wrapper around Sensifai [https://developer.sensifai.com](Image and Video recognition API).
+This Python client provides a wrapper around [Sensifai Image and Video recognition API](https://developer.sensifai.com).
 
 
 Installation

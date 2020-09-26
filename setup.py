@@ -1,26 +1,31 @@
-from setuptools import setup, find_packages
+"""
+Inspired By Django Setup.py
+Github Link: https://github.com/django/django/blob/master/setup.py
+"""
 
-setup(
-    name="sensifai",
-    version="0.2.1",
-    license='apache-2.0',
-    description="Sensifai API Python Client",
-    packages=find_packages(exclude=["docs", "tests"]),
-    extras_require=dict(reST="Docutils>=0.14"),
-    
-    maintainer='Rahman yousefzadeh',
-    maintainer_email='r.y.zadeh@Sensifai.com',
-    url='https://github.com/sensifai/sensifai_python',
-    author_email='api@sensifai.com',
+import sys
 
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
-        'Topic :: Multimedia :: Video',
-        'License :: OSI Approved :: Apache Software License'
-    ],
-    keywords='Sensofai; Video Recognition; ',
-    python_requires='>=3',
-    
-)
+from setuptools import setup
+
+CURRENT_PYTHON = sys.version_info[:2]
+REQUIRED_PYTHON = (3, 6)
+
+# This check and everything above must remain compatible with Python 2.7.
+if CURRENT_PYTHON < REQUIRED_PYTHON:
+    sys.stderr.write("""
+==========================
+Unsupported Python version
+==========================
+This version of Sensifai Python SDK requires Python {}.{}, but you're trying to
+install it on Python {}.{}.
+This may be because you are using a version of pip that doesn't
+understand the python_requires classifier. Make sure you
+have pip >= 9.0 and setuptools >= 24.2, then try again:
+    $ python -m pip install --upgrade pip setuptools
+    $ python -m pip install sensifai
+This will install the latest version of Sensifai Python SDK which works on your
+version of Python.
+""".format(*(REQUIRED_PYTHON + CURRENT_PYTHON)))
+    sys.exit(1)
+
+setup()

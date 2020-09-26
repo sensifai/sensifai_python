@@ -5,7 +5,7 @@ Sensifai API Python Client
 
 Overview
 ---------------------
-This Python client provides a wrapper around Sensifai <a href="https://developer.sensifai.com"> Image and Video recognition API</a>.
+This Python client provides a wrapper around Sensifai [https://developer.sensifai.com](Image and Video recognition API).
 
 
 Installation
@@ -32,22 +32,22 @@ first of all, create an instance of SensifaiApi
 
 ```python
 token = 'Your_token_that_you_create_in_panel'
-sensifai_api = SensifaiApi(token)
+sensifai_api = SensifaiApi(token = token)
 ```
-after that, call `start_model` with appropriate keyword. `urls` if you wanna pass url and `files` if you wanna send a file from your device. let's see an example:
+after that, call `upload_by_files` or `upload_by_urls` with appropriate list. let's see an example:
 
 ```python
 # url example for image urls
 urls_list = ['https://url1.png', 'http://url2.jpg']
 # url example for video urls
 # urls_list = ['https://url1.avi', 'http://url2.mp4']
-task_dict = sensifai_api.start_model(urls = urls_list) 
+task_dict = sensifai_api.upload_by_urls(urls_list) 
 
 # file example
 files_list = ['/home/user/1.png', '/var/file/video.jpg']
-task_dict = sensifai_api.start_model(files = files_list)
+task_dict = sensifai_api.upload_by_files(files_list)
 ```
-as you can see, `start_model` return a variable that is a dictionary contain `succeed` that a list of dictionaries with `file` and `taskId` and `cannotUpload` that are links that cannot upload list contain the links that the server failed to get them or conflict with the token. for example, if you set a video token for an instance and send image with it, they won't be processed and return cannot upload list.
+as you can see, `upload_by_files` and `upload_by_urls` return a variable that is a dictionary contain `succeed` that a list of dictionaries with `file` and `taskId` and `cannotUpload` that are links that cannot upload list contain the links that the server failed to get them or conflict with the token. for example, if you set a video token for an instance and send image with it, they won't be processed and return cannot upload list.
 
 
 
@@ -66,8 +66,8 @@ Here's how to save all the predicted concepts associated with the video.
 
 
 ```python
-
-from pprint import  pprint                                                                 import json
+import json
+from pprint import pprint
                                          
 
 for id in task_dict["succeed"]: 
@@ -80,4 +80,4 @@ for id in task_dict["succeed"]:
 
 
 #To save as a JSON file
-
+```
